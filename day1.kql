@@ -1,0 +1,23 @@
+datatable(input: string) [ 
+    "two1nine", "eightwothree", "abcone2threexyz", "xtwone3four",
+    "4nineeightseven2", "zoneight234", "7pqrstsixteen"
+]
+| extend part2Input = replace_string(input, "one", "one1one")
+| extend part2Input = replace_string(part2Input, "two", "two2two")
+| extend part2Input = replace_string(part2Input, "three", "three3three")
+| extend part2Input = replace_string(part2Input, "four", "four4four")
+| extend part2Input = replace_string(part2Input, "five", "five5five")
+| extend part2Input = replace_string(part2Input, "six", "six6six")
+| extend part2Input = replace_string(part2Input, "seven", "seven7seven")
+| extend part2Input = replace_string(part2Input, "eight", "eight8eight")
+| extend part2Input = replace_string(part2Input, "nine", "nine9nine")
+| extend part2Input = replace_string(part2Input, "zero", "zero0zero")
+| extend 
+    firstDigit=substring(trim_start("[^0-9]+", input), 0, 1),
+    firstDigitPart2=substring(trim_start("[^0-9]+", part2Input), 0, 1),
+    lastDigit=substring(trim_end("[^0-9]+", input), -1, 1),
+    lastDigitPart2=substring(trim_end("[^0-9]+", part2Input), -1, 1)
+| extend 
+    number=toint(strcat(firstDigit, lastDigit)),
+    numberPart2=toint(strcat(firstDigitPart2, lastDigitPart2))
+| summarize sum(number), sum(numberPart2)
