@@ -1,0 +1,33 @@
+let preProcessing=datatable(input: string)
+[   
+  "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
+  "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue",
+  "Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red",
+  "Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red",
+  "Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"
+]
+| extend
+    ix=toint(extract("Game (\\d+).*?", 1, input)),
+    iterations=split(extract("Game \\d+: (.*)?", 1, input), ";")
+| mv-expand iterations
+| extend
+    components=split(iterations, ",")
+| mv-expand components
+| extend
+    num=toint(split(trim_start(" ", tostring(components)), " ")[0]),
+    color=tostring(split(trim_start(" ", tostring(components)), " ")[1]);
+
+preProcessing
+| summarize max(num) by ix, color
+| summarize res=round(exp(sum(log(max_num)))) by ix
+| summarize sum(res);
+
+preProcessing
+| extend 
+    part1IsValid=case(
+                 color == "red", num <= 12,
+                 color == "green", num <= 13,
+                 color == "blue", num <= 14,
+                 true)
+| summarize min(part1IsValid) by ix
+| summarize sumif(ix, min_part1IsValid);
